@@ -20,6 +20,8 @@
 ;; USA
 
 ;; Version: 1.0
+;; Package-Version: 20220215.1758
+;; Package-Commit: 9e1fde7f359f7f6a6976b857fbbdbc8dd4fd3327
 ;; Author: Adrien Brochard
 ;; Keywords: habitica todo
 ;; URL: https://github.com/abrochard/emacs-habitica
@@ -148,7 +150,7 @@
 (defvar habitica-difficulty '((1 . "easy") (1.5 . "medium") (2 . "hard"))
   "Assoc list of priority/difficulty.")
 
-(defvar habitica-spells '(("mage" "fireball" "mpheal" "earth" "frost")
+(defvar habitica-spells '(("wizard" "fireball" "mpheal" "earth" "frost")
                           ("warrior" "smash" "defensiveStance" "valorousPresence" "intimidate")
                           ("rogue" "pickPocket" "backStab" "toolsOfTrade" "stealth")
                           ("healer" "heal" "protectAura" "brightness" "healAll"))
@@ -413,12 +415,14 @@ Options are 0.1, 1, 1.5, 2; eqivalent of Trivial, Easy, Medium, Hard."
          (query-paramaters (if target-id
                                (format "?targetId=%s" target-id)
                              "")))
-    (habitica--send-request (format "/user/class/cast/%s%s" spell query-paramaters) "POST" "")))
+    (if (member spell available-spells)
+        (habitica--send-request (format "/user/class/cast/%s%s" spell query-paramaters) "POST" "")
+      (message "Invalid spell(%s)!, available spells are %s" spell available-spells))))
 
 (defun habitica-api-buy-health-potion ()
   "Buy health potion."
   (when (and  (< habitica-hp habitica-max-hp)
-            (> habitica-gold 15))
+              (> habitica-gold 15))
     (habitica--send-request "/user/buy-health-potion" "POST" "")))
 
 (defun habitica-api-accept-party-quest ()
@@ -893,7 +897,7 @@ NEW-TAG is the new name to give to the tag."
 
 (defun habitica-cron ()
   "Runs cron"
-  (interactive)
+  intimidate (interactive)
   (when (habitica-api-need-cron-p)
     (habitica-api-cron)))
 
