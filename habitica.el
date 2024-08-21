@@ -418,7 +418,7 @@ Options are 0.1, 1, 1.5, 2; eqivalent of Trivial, Easy, Medium, Hard."
 (defun habitica-api-buy-health-potion ()
   "Buy health potion."
   (when (and  (< habitica-hp habitica-max-hp)
-            (> habitica-gold 15))
+              (> habitica-gold 15))
     (habitica--send-request "/user/buy-health-potion" "POST" "")))
 
 (defun habitica-api-accept-party-quest ()
@@ -428,7 +428,7 @@ Options are 0.1, 1, 1.5, 2; eqivalent of Trivial, Easy, Medium, Hard."
          (quest-data (assoc-default 'quest party-data))
          (RSVPNeeded (assoc-default 'RSVPNeeded quest-data)))
     (when (equal RSVPNeeded t)
-        (habitica--send-request (format "/groups/party/quests/accept") "POST" ""))))
+      (habitica--send-request (format "/groups/party/quests/accept") "POST" ""))))
 
 (defun habitica-api-allocate-a-stat-point (&optional stat)
   "Allocate a stat point."
@@ -561,9 +561,9 @@ TASK is the parsed JSON reponse."
          (tags (mapcar #'habitica--tag-explainer tag-ids))
          (priority (habitica--priority-explainer (habitica--task-priority task))))
     (habitica--set-tags (append
-                      tags
-                      (list priority)
-                      (habitica--get-streak-as-list task)))))
+                         tags
+                         (list priority)
+                         (habitica--get-streak-as-list task)))))
 
 (defun habitica--get-streak-as-list (task)
   "Get the streak formated as a single element list.
@@ -869,21 +869,21 @@ NEW-TAG is the new name to give to the tag."
       (let ((habitica-id (org-element-property :HABITICA_ID (org-element-at-point)))
             (habitica-triggered-state-change-p t)
             new-score)
-        (while (and (null habitica-id)
-                    (org-up-heading-safe))
-          (setq habitica-id (org-element-property :HABITICA_ID (org-element-at-point))))
-        (when (and habitica-id
-                   org-state
-                   (string= org-state "DONE"))
-          ;; (habitica-api-score-task habitica-id "up")
-          (with-current-buffer habitica-buffer-name
-            (save-excursion
-              (habitica--goto-task habitica-id)
-              (habitica-up-task)
-              (habitica--goto-task habitica-id)
-              (setq new-score (org-element-property :HABITICA_VALUE (org-element-at-point)))))
-          ;; update the HABITICA_VALUE in origin org files
-          (save-excursion
+        (save-excursion
+          (while (and (null habitica-id)
+                      (org-up-heading-safe))
+            (setq habitica-id (org-element-property :HABITICA_ID (org-element-at-point))))
+          (when (and habitica-id
+                     org-state
+                     (string= org-state "DONE"))
+            ;; (habitica-api-score-task habitica-id "up")
+            (with-current-buffer habitica-buffer-name
+              (save-excursion
+                (habitica--goto-task habitica-id)
+                (habitica-up-task)
+                (habitica--goto-task habitica-id)
+                (setq new-score (org-element-property :HABITICA_VALUE (org-element-at-point)))))
+            ;; update the HABITICA_VALUE in origin org files
             (org-back-to-heading)
             (org-set-property "HABITICA_VALUE" new-score))
           )))))
@@ -1090,8 +1090,8 @@ NAME is the name of the new tag."
   "Delete a tag and remove it from all tasks."
   (interactive)
   (let* ((index (habitica--choose-tag (mapcar 'cdr habitica-tags)
-                                     "Select the index of the tag to delete: "))
-        (id (car (nth index habitica-tags))))
+                                      "Select the index of the tag to delete: "))
+         (id (car (nth index habitica-tags))))
     (habitica-api-delete-tag id)
     (habitica--remove-tag-everywhere (cdr (nth index habitica-tags)))
     (setq habitica-tags (delete (nth index habitica-tags) habitica-tags))))
@@ -1100,9 +1100,9 @@ NAME is the name of the new tag."
   "Rename a tag and update it everywhere."
   (interactive)
   (let* ((index (habitica--choose-tag (mapcar 'cdr habitica-tags)
-                                     "Select the index of the tag to rename: "))
-        (name (read-string "Enter a new name: "))
-        (tag-id (car (nth index habitica-tags))))
+                                      "Select the index of the tag to rename: "))
+         (name (read-string "Enter a new name: "))
+         (tag-id (car (nth index habitica-tags))))
     (habitica-api-rename-tag tag-id name)
     (habitica--rename-tag-everywhere (cdr (nth index habitica-tags)) name)
     ;; rename in habitica-tags
@@ -1116,9 +1116,9 @@ NAME is the name of the new tag."
   "Add a tag to the task under the cursor."
   (interactive)
   (let* ((index (habitica--choose-tag (mapcar 'cdr habitica-tags)
-                                     "Select the index of the tag to add: "))
-        (task-id (org-element-property :HABITICA_ID (org-element-at-point)))
-        (tag-id (format "%s" (car (nth index habitica-tags)))))
+                                      "Select the index of the tag to add: "))
+         (task-id (org-element-property :HABITICA_ID (org-element-at-point)))
+         (tag-id (format "%s" (car (nth index habitica-tags)))))
     (habitica-api-add-tag-to-task task-id tag-id)
     (habitica--set-tags (append (cons (cdr (nth index habitica-tags)) nil) (org-get-tags)))))
 
@@ -1159,10 +1159,10 @@ TEXT is the checklist item name."
 TEXT is the checklist item new name."
   (interactive "sEnter the new item name: ")
   (let* ((task-id (habitica--get-current-task-id))
-        (done nil)
-        (item-id (habitica--get-checklist-item-id
-                  task-id
-                  (habitica--get-current-checklist-item-index))))
+         (done nil)
+         (item-id (habitica--get-checklist-item-id
+                   task-id
+                   (habitica--get-current-checklist-item-index))))
     ;; Determine if the item is checked
     (setq done (save-excursion
                  (goto-char (line-end-position))
